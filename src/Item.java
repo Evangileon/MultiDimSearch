@@ -69,6 +69,10 @@ public class Item {
         setPrev(whichAisle(partName), item);
     }
 
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
     public void detachFromList(long partName) {
         int aisle = this.whichAisle(partName);
         if (aisle < 0) {
@@ -89,5 +93,11 @@ public class Item {
 
         // for size
         ((ItemListHead) this.head[aisle]).size--;
+    }
+
+    public void detachFromAllLists() {
+        for (long partName : name) {
+            detachFromList(partName);
+        }
     }
 }
