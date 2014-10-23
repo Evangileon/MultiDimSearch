@@ -68,7 +68,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * @param rightBound inclusive
      * @param list       store list, all elements stored in order
      */
-    private void doGetKeysOnRange(Node<Key, Value> root, Key leftBound, Key rightBound, LinkedList<Node> list) {
+    private void doGetKeysOnRange(Node<Key, Value> root, Key leftBound, Key rightBound, LinkedList<Node<Key, Value>> list) {
         if (root == null) {
             return;
         }
@@ -96,12 +96,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * @param rightBound inclusive
      * @return list of all ordered elements that satisfy the relation
      */
-    public LinkedList<Node> getNodesOnRange(Key leftBound, Key rightBound) {
+    public LinkedList<Node<Key, Value>> getNodesOnRange(Key leftBound, Key rightBound) {
         if (leftBound == null || rightBound == null) {
             return null;
         }
 
-        LinkedList<Node> list = new LinkedList<Node>();
+        LinkedList<Node<Key, Value>> list = new LinkedList<Node<Key, Value>>();
         if (leftBound.compareTo(rightBound) > 0) {
             return list;
         }

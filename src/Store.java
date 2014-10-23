@@ -77,10 +77,10 @@ public class Store {
             return 0;
         }
 
-        LinkedList<Node> nodeList = priceMap.getNodesOnRange(low, high);
+        LinkedList<Node<Double, ItemListHead>> nodeList = priceMap.getNodesOnRange(low, high);
         int sum = 0;
-        for (Node node : nodeList) {
-            //sum += node.val.
+        for (Node<Double, ItemListHead> node : nodeList) {
+            sum += node.val.size;
         }
 
         return sum;
