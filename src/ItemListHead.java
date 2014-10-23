@@ -64,4 +64,9 @@ public class ItemListHead extends Item {
     public void setPrev(long partName, Item item) {
         this.prev = item;
     }
+
+    @Override
+    public void decrementSize() {
+        this.size--;
+    }
 }

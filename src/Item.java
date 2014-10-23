@@ -92,12 +92,16 @@ public class Item {
         }
 
         // for size
-        ((ItemListHead) this.head[aisle]).size--;
+        this.head[aisle].decrementSize();
     }
 
     public void detachFromAllLists() {
         for (long partName : name) {
             detachFromList(partName);
         }
+    }
+
+    public void decrementSize() {
+
     }
 }

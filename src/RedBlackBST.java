@@ -34,39 +34,31 @@ import java.util.Queue;
 
 public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
-    private Node maxNode;
-    private Node minNode;
+    private Node<Key, Value> maxNode;
+    private Node<Key, Value> minNode;
 
-    private Node recentlyAccessedNode; // really tricky
+    private Node<Key, Value> recentlyAccessedNode; // really tricky
 
     protected static final boolean RED = true;
     protected static final boolean BLACK = false;
 
-    protected Node root;     // root of the BST
+    protected Node<Key, Value> root;     // root of the BST
 
-    // BST helper node data type
-    protected class Node {
-        protected Key key;           // key
-        protected Value val;         // associated data
-        protected Node left, right;  // links to left and right subtrees
-        protected boolean color;     // color of parent link
-        protected int N;             // subtree count
+    /**
+     * ************************************************************
+     * Jun Yu's modification is here
+     * <p/>
+     * *************************************************************
+     */
 
-        public Node(Key key, Value val, boolean color, int N) {
-            this.key = key;
-            this.val = val;
-            this.color = color;
-            this.N = N;
-        }
-
-        public Node() {
-        }
+    public Key getMinKey() {
+        return minNode.key;
     }
 
-    /***************************************************************
-     * Jun Yu's modification is here
-     *
-     ***************************************************************/
+    public Key getMaxKey() {
+        return maxNode.key;
+    }
+
 
     /**
      * Use in-order traversal
@@ -76,7 +68,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * @param rightBound inclusive
      * @param list       store list, all elements stored in order
      */
-    private void doGetKeysOnRange(Node root, Key leftBound, Key rightBound, LinkedList<Node> list) {
+    private void doGetKeysOnRange(Node<Key, Value> root, Key leftBound, Key rightBound, LinkedList<Node> list) {
         if (root == null) {
             return;
         }
@@ -104,7 +96,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * @param rightBound inclusive
      * @return list of all ordered elements that satisfy the relation
      */
-    public LinkedList<Node> getKeysOnRange(Key leftBound, Key rightBound) {
+    public LinkedList<Node> getNodesOnRange(Key leftBound, Key rightBound) {
         if (leftBound == null || rightBound == null) {
             return null;
         }
@@ -118,6 +110,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
         return list;
     }
+
 
     /**
      * **********************************************************************
@@ -165,7 +158,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // value associated with the given key in subtree rooted at x; null if no such key
-    protected Value get(Node x, Key key) {
+    protected Value get(Node<Key, Value> x, Key key) {
         while (x != null) {
             int cmp = key.compareTo(x.key);
             if (cmp < 0) x = x.left;
@@ -200,9 +193,9 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // insert the key-value pair in the subtree rooted at h
-    protected Node put(Node h, Key key, Value val) {
+    protected Node<Key, Value> put(Node<Key, Value> h, Key key, Value val) {
         if (h == null) {
-            Node newNode = new Node(key, val, RED, 1);
+            Node<Key, Value> newNode = new Node<Key, Value>(key, val, RED, 1);
             if (maxNode == null || newNode.key.compareTo(maxNode.key) > 0) {
                 maxNode = newNode;
             } else if (minNode == null || newNode.key.compareTo(minNode.key) < 0) {
@@ -250,7 +243,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // delete the key-value pair with the minimum key rooted at h
-    protected Node deleteMin(Node h) {
+    protected Node<Key, Value> deleteMin(Node<Key, Value> h) {
         if (h.left == null)
             return null;
 
@@ -288,7 +281,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * @deprecated To implement fine max/min in this tree on O(1), deprecated this method
      */
     @Deprecated
-    protected Node deleteMax(Node h) {
+    protected Node<Key, Value> deleteMax(Node<Key, Value> h) {
         if (isRed(h.left))
             h = rotateRight(h);
 
@@ -320,7 +313,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // delete the key-value pair with the given key rooted at h
-    protected Node delete(Node h, Key key) {
+    protected Node<Key, Value> delete(Node<Key, Value> h, Key key) {
         // assert contains(h, key);
 
         if (key.compareTo(h.key) < 0) {
@@ -338,7 +331,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
                 h = moveRedRight(h);
             if (key.compareTo(h.key) == 0) {
                 // delete point
-                Node x = min(h.right);
+                Node<Key, Value> x = min(h.right);
                 h.key = x.key;
                 h.val = x.val;
                 // h.val = get(h.right, min(h.right).key);
@@ -356,9 +349,9 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      */
 
     // make a left-leaning link lean to the right
-    protected Node rotateRight(Node h) {
+    protected Node<Key, Value> rotateRight(Node<Key, Value> h) {
         // assert (h != null) && isRed(h.left);
-        Node x = h.left;
+        Node<Key, Value> x = h.left;
         h.left = x.right;
         x.right = h;
         x.color = x.right.color;
@@ -369,9 +362,9 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // make a right-leaning link lean to the left
-    protected Node rotateLeft(Node h) {
+    protected Node<Key, Value> rotateLeft(Node<Key, Value> h) {
         // assert (h != null) && isRed(h.right);
-        Node x = h.right;
+        Node<Key, Value> x = h.right;
         h.right = x.left;
         x.left = h;
         x.color = x.left.color;
@@ -381,8 +374,8 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
         return x;
     }
 
-    // flip the colors of a node and its two children
-    protected void flipColors(Node h) {
+    // flip the colors of a Node<Key, Value> and its two children
+    protected void flipColors(Node<Key, Value> h) {
         // h must have opposite color of its two children
         // assert (h != null) && (h.left != null) && (h.right != null);
         // assert (!isRed(h) &&  isRed(h.left) &&  isRed(h.right))
@@ -394,7 +387,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
     // Assuming that h is red and both h.left and h.left.left
     // are black, make h.left or one of its children red.
-    protected Node moveRedLeft(Node h) {
+    protected Node<Key, Value> moveRedLeft(Node<Key, Value> h) {
         // assert (h != null);
         // assert isRed(h) && !isRed(h.left) && !isRed(h.left.left);
 
@@ -408,7 +401,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
     // Assuming that h is red and both h.right and h.right.left
     // are black, make h.right or one of its children red.
-    protected Node moveRedRight(Node h) {
+    protected Node<Key, Value> moveRedRight(Node<Key, Value> h) {
         // assert (h != null);
         // assert isRed(h) && !isRed(h.right) && !isRed(h.right.left);
         flipColors(h);
@@ -419,7 +412,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // restore red-black tree invariant
-    protected Node balance(Node h) {
+    protected Node<Key, Value> balance(Node<Key, Value> h) {
         // assert (h != null);
 
         if (isRed(h.right)) h = rotateLeft(h);
@@ -437,12 +430,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
      * ***********************************************************************
      */
 
-    // height of tree (1-node tree has height 0)
+    // height of tree (1-Node<Key, Value> tree has height 0)
     public int height() {
         return height(root);
     }
 
-    protected int height(Node x) {
+    protected int height(Node<Key, Value> x) {
         if (x == null) return -1;
         return 1 + Math.max(height(x.left), height(x.right));
     }
@@ -460,7 +453,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // the smallest key in subtree rooted at x; null if no such key
-    protected Node min(Node x) {
+    protected Node<Key, Value> min(Node<Key, Value> x) {
         // assert x != null;
         if (x.left == null) return x;
         else return min(x.left);
@@ -473,7 +466,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // the largest key in the subtree rooted at x; null if no such key
-    protected Node max(Node x) {
+    protected Node<Key, Value> max(Node<Key, Value> x) {
         // assert x != null;
         if (x.right == null) return x;
         else return max(x.right);
@@ -481,36 +474,36 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
     // the largest key less than or equal to the given key
     public Key floor(Key key) {
-        Node x = floor(root, key);
+        Node<Key, Value> x = floor(root, key);
         if (x == null) return null;
         else return x.key;
     }
 
     // the largest key in the subtree rooted at x less than or equal to the given key
-    protected Node floor(Node x, Key key) {
+    protected Node<Key, Value> floor(Node<Key, Value> x, Key key) {
         if (x == null) return null;
         int cmp = key.compareTo(x.key);
         if (cmp == 0) return x;
         if (cmp < 0) return floor(x.left, key);
-        Node t = floor(x.right, key);
+        Node<Key, Value> t = floor(x.right, key);
         if (t != null) return t;
         else return x;
     }
 
     // the smallest key greater than or equal to the given key
     public Key ceiling(Key key) {
-        Node x = ceiling(root, key);
+        Node<Key, Value> x = ceiling(root, key);
         if (x == null) return null;
         else return x.key;
     }
 
     // the smallest key in the subtree rooted at x greater than or equal to the given key
-    protected Node ceiling(Node x, Key key) {
+    protected Node<Key, Value> ceiling(Node<Key, Value> x, Key key) {
         if (x == null) return null;
         int cmp = key.compareTo(x.key);
         if (cmp == 0) return x;
         if (cmp > 0) return ceiling(x.right, key);
-        Node t = ceiling(x.left, key);
+        Node<Key, Value> t = ceiling(x.left, key);
         if (t != null) return t;
         else return x;
     }
@@ -519,12 +512,12 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     // the key of rank k
     public Key select(int k) {
         if (k < 0 || k >= size()) return null;
-        Node x = select(root, k);
+        Node<Key, Value> x = select(root, k);
         return x.key;
     }
 
     // the key of rank k in the subtree rooted at x
-    protected Node select(Node x, int k) {
+    protected Node<Key, Value> select(Node<Key, Value> x, int k) {
         // assert x != null;
         // assert k >= 0 && k < size(x);
         int t = size(x.left);
@@ -539,7 +532,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // number of keys less than key in the subtree rooted at x
-    protected int rank(Key key, Node x) {
+    protected int rank(Key key, Node<Key, Value> x) {
         if (x == null) return 0;
         int cmp = key.compareTo(x.key);
         if (cmp < 0) return rank(key, x.left);
@@ -568,7 +561,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
 
     // add the keys between lo and hi in the subtree rooted at x
     // to the queue
-    protected void keys(Node x, Queue<Key> queue, Key lo, Key hi) {
+    protected void keys(Node<Key, Value> x, Queue<Key> queue, Key lo, Key hi) {
         if (x == null) return;
         int cmplo = lo.compareTo(x.key);
         int cmphi = hi.compareTo(x.key);
@@ -608,7 +601,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     // is the tree rooted at x a BST with all keys strictly between min and max
     // (if min or max is null, treat as empty constraint)
     // Credit: Bob Dondero's elegant solution
-    protected boolean isBST(Node x, Key min, Key max) {
+    protected boolean isBST(Node<Key, Value> x, Key min, Key max) {
         if (x == null) return true;
         if (min != null && x.key.compareTo(min) <= 0) return false;
         if (max != null && x.key.compareTo(max) >= 0) return false;
@@ -620,7 +613,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
         return isSizeConsistent(root);
     }
 
-    protected boolean isSizeConsistent(Node x) {
+    protected boolean isSizeConsistent(Node<Key, Value> x) {
         if (x == null) return true;
         if (x.N != size(x.left) + size(x.right) + 1) return false;
         return isSizeConsistent(x.left) && isSizeConsistent(x.right);
@@ -641,7 +634,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
         return is23(root);
     }
 
-    protected boolean is23(Node x) {
+    protected boolean is23(Node<Key, Value> x) {
         if (x == null) return true;
         if (isRed(x.right)) return false;
         if (x != root && isRed(x) && isRed(x.left))
@@ -652,7 +645,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     // do all paths from root to leaf have same number of black edges?
     protected boolean isBalanced() {
         int black = 0;     // number of black links on path from root to min
-        Node x = root;
+        Node<Key, Value> x = root;
         while (x != null) {
             if (!isRed(x)) black++;
             x = x.left;
@@ -661,7 +654,7 @@ public class RedBlackBST<Key extends Comparable<Key>, Value> {
     }
 
     // does every path from the root to a leaf have the given number of black links?
-    protected boolean isBalanced(Node x, int black) {
+    protected boolean isBalanced(Node<Key, Value> x, int black) {
         if (x == null) return black == 0;
         if (!isRed(x)) black--;
         return isBalanced(x.left, black) && isBalanced(x.right, black);

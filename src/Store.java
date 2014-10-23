@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.LinkedList;
 
 /**
  * Created by Jun Yu on 10/23/14.
@@ -28,6 +29,61 @@ public class Store {
         updateNamePriceMap(item);
 
         return 0;
+    }
+
+    public double find(long id) {
+        Item item = itemMap.get(id);
+        if (item == null) {
+            return 0;
+        }
+        return item.price;
+    }
+
+    public long delete(long id) {
+        Item item = itemMap.remove(id);
+        if (item == null) {
+            return 0;
+        }
+        item.detachFromAllLists();
+
+        long sum = 0;
+        for (long one : item.name) {
+            sum += one;
+        }
+        return sum;
+    }
+
+    public double findMinPrice(long n) {
+        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+        if (priceMap == null) {
+            return 0;
+        }
+
+        return priceMap.getMinKey();
+    }
+
+    public double findMaxPrice(long n) {
+        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+        if (priceMap == null) {
+            return 0;
+        }
+
+        return priceMap.getMaxKey();
+    }
+
+    public int findPriceRange(long n, double low, double high) {
+        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+        if (priceMap == null) {
+            return 0;
+        }
+
+        LinkedList<Node> nodeList = priceMap.getNodesOnRange(low, high);
+        int sum = 0;
+        for (Node node : nodeList) {
+            //sum += node.val.
+        }
+
+        return sum;
     }
 
     private void updateNamePriceMap(Item item) {
