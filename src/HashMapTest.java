@@ -40,6 +40,7 @@ public class HashMapTest {
 
     /**
      * Initialize the hash map, using random number as key and one of member of value
+     *
      * @param n scale of data
      * @return HashMap
      */
@@ -63,10 +64,10 @@ public class HashMapTest {
     }
 
 
-
     /**
      * To ensure map and array have the same elements, iterate the map
      * and export every element into array
+     *
      * @param map reference map
      * @return sorted array by the order of Pair.id
      */
@@ -85,6 +86,7 @@ public class HashMapTest {
 
     /**
      * Initialize array list from array
+     *
      * @param array reference array
      * @return array list
      */
@@ -94,13 +96,14 @@ public class HashMapTest {
 
     /**
      * Three must have the same contents
-     * @param fraction one fraction th of elements to search
-     * @param map HashMap
-     * @param array Array
+     *
+     * @param fraction  one fraction th of elements to search
+     * @param map       HashMap
+     * @param array     Array
      * @param arrayList ArrayList
      */
     static void compareSearchTime(int fraction, HashMap<Integer, Pair> map, Pair[] array, ArrayList<Pair> arrayList) {
-        if(fraction <= 0) {
+        if (fraction <= 0) {
             return;
         }
 
@@ -135,7 +138,7 @@ public class HashMapTest {
         timeArray = System.nanoTime();
         for (int i = 0; i < numToSearch; i++) {
             temp.id = searchs[i];
-            if (Arrays.binarySearch(array, temp) >= 0 ) {
+            if (Arrays.binarySearch(array, temp) >= 0) {
                 hitArray++;
             }
         }

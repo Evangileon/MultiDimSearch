@@ -12,10 +12,11 @@ public class ExtendedRedBlackBST<Key extends Comparable<Key>, Value> extends Red
 
     /**
      * Use in-order traversal
-     * @param root root of subtree
-     * @param leftBound inclusive
+     *
+     * @param root       root of subtree
+     * @param leftBound  inclusive
      * @param rightBound inclusive
-     * @param list store list, all elements stored in order
+     * @param list       store list, all elements stored in order
      */
     private void doGetKeysOnRange(Node root, Key leftBound, Key rightBound, LinkedList<Node> list) {
         if (root == null) {
@@ -40,7 +41,8 @@ public class ExtendedRedBlackBST<Key extends Comparable<Key>, Value> extends Red
 
     /**
      * Get all key with leftBound <= key <= rightBound
-     * @param leftBound inclusive
+     *
+     * @param leftBound  inclusive
      * @param rightBound inclusive
      * @return list of all ordered elements that satisfy the relation
      */
@@ -62,6 +64,7 @@ public class ExtendedRedBlackBST<Key extends Comparable<Key>, Value> extends Red
 
     /**
      * Extend put method of base class, so that it can update the minNode and maxNode
+     *
      * @param key comparable
      * @param val value
      */
@@ -88,14 +91,14 @@ public class ExtendedRedBlackBST<Key extends Comparable<Key>, Value> extends Red
         }
 
         int cmp = key.compareTo(h.key);
-        if      (cmp < 0) h.left  = put(h.left,  key, val);
+        if (cmp < 0) h.left = put(h.left, key, val);
         else if (cmp > 0) h.right = put(h.right, key, val);
-        else              h.val   = val; // update the value
+        else h.val = val; // update the value
 
         // fix-up any right-leaning links
-        if (isRed(h.right) && !isRed(h.left))      h = rotateLeft(h);
-        if (isRed(h.left)  &&  isRed(h.left.left)) h = rotateRight(h);
-        if (isRed(h.left)  &&  isRed(h.right))     flipColors(h);
+        if (isRed(h.right) && !isRed(h.left)) h = rotateLeft(h);
+        if (isRed(h.left) && isRed(h.left.left)) h = rotateRight(h);
+        if (isRed(h.left) && isRed(h.right)) flipColors(h);
         h.N = size(h.left) + size(h.right) + 1;
 
         return h;
