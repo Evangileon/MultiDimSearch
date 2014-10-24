@@ -1,5 +1,12 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.TreeMap;
 
 /**
  * Created by Jun Yu on 10/23/14.
@@ -7,19 +14,23 @@ import java.util.LinkedList;
 public class Store {
     HashMap<Long, Item> itemMap;
     HashMap<Long, RedBlackBST<Double, ItemListHead>> namePriceMap;
+    RedBlackBST<Long, Item> itemTree;
 
     public Store() {
         itemMap = new HashMap<Long, Item>();
         namePriceMap = new HashMap<Long, RedBlackBST<Double, ItemListHead>>();
+        itemTree = new RedBlackBST<Long, Item>();
     }
 
     public int insert(long id, double price, long[] name) {
         Item item = itemMap.get(id);
 
         if (item == null) {
-            itemMap.put(id, new Item(id, price, name));
+            item = new Item(id, price, name);
+            itemMap.put(id, item);
             // put int name price map
             updateNamePriceMap(item);
+            itemTree.put(id, item);
             return 1;
         }
 
@@ -59,7 +70,8 @@ public class Store {
             return 0;
         }
 
-        return priceMap.getMinKey();
+        // log n, O(1) try later
+        return priceMap.min();
     }
 
     public double findMaxPrice(long n) {
@@ -68,7 +80,7 @@ public class Store {
             return 0;
         }
 
-        return priceMap.getMaxKey();
+        return priceMap.max();
     }
 
     public int findPriceRange(long n, double low, double high) {
@@ -84,6 +96,29 @@ public class Store {
         }
 
         return sum;
+    }
+
+    DecimalFormat priceFormat = new DecimalFormat("##.##");
+
+    public double priceHike(long l, long h, int r) {
+        if (r <= 0 || r > 100) {
+            return 0;
+        }
+
+        LinkedList<Node<Long, Item>> itemsOnRange = itemTree.getNodesOnRange(l, h);
+        double ratio = ((double)r) / 100;
+        double increase = 0;
+
+        for (Node<Long, Item> node : itemsOnRange) {
+            Item item = node.val;
+            double oldPrice = item.price;
+            item.price = Double.valueOf(priceFormat.format((1 + r) * item.price));
+            item.detachFromAllLists();
+            updateNamePriceMap(item);
+            increase += (item.price - oldPrice);
+        }
+
+        return increase;
     }
 
     private void updateNamePriceMap(Item item) {
@@ -102,6 +137,105 @@ public class Store {
             }
 
             head.addFirst(item, partName);
+        }
+    }
+
+    public static void main(String[] args) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        double output = 0;
+
+        Store store = new Store();
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null && !line.equals("")) {
+                if (line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] params = line.split(" ");
+                if (params.length < 1) {
+                    System.out.println("Error in data");
+                    System.exit(0);
+                }
+
+                String cmd = params[0];
+
+                if (cmd.equals("Insert")) {
+                    int result = 0;
+                    long id = Long.valueOf(params[1]);
+                    double price = Double.valueOf(params[2]);
+                    int nameLength = cmd.length() - 4;
+
+                    if (nameLength == 0) {
+                        // update price
+                        result = store.insert(id, price, null);
+                    } else {
+                        long[] name = new long[nameLength];
+                        for (int i = 0; i < nameLength; i++) {
+                            name[i] = Long.valueOf(params[i + 3]);
+                        }
+                        result = store.insert(id, price, name);
+                    }
+
+                    output += result;
+
+                } else if (cmd.equals("Find")) {
+                    double result = 0;
+                    long id = Long.valueOf(params[1]);
+                    result = store.find(id);
+
+                    output += result;
+
+                } else if (cmd.equals("Delete")) {
+                    long result = 0;
+                    long id = Long.valueOf(params[1]);
+                    result = store.delete(id);
+
+                    output += result;
+
+                } else if (cmd.equals("FindMinPrice")) {
+                    double result;
+                    long partName = Long.valueOf(params[1]);
+                    result = store.findMinPrice(partName);
+
+                    output += result;
+
+                } else if (cmd.equals("FindMaxPrice")) {
+                    double result;
+                    long partName = Long.valueOf(params[1]);
+                    result = store.findMaxPrice(partName);
+
+                    output += result;
+
+                } else if (cmd.equals("FindPriceRange")) {
+                    int result = 0;
+                    long partName = Long.valueOf(params[1]);
+                    double low = Double.valueOf(params[2]);
+                    double high = Double.valueOf(params[3]);
+
+                    result = store.findPriceRange(partName, low, high);
+
+                    output += result;
+
+                } else if (cmd.equals("PriceHike")) {
+                    double result = 0;
+                    long l = Long.valueOf(params[1]);
+                    long h = Long.valueOf(params[2]);
+                    int r = Integer.valueOf(params[3]);
+
+                    result = store.priceHike(l, h, r);
+
+                    output += result;
+                }
+            }
+
+            System.out.println("Output:");
+            System.out.println(output);
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
