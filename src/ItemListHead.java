@@ -66,7 +66,8 @@ public class ItemListHead extends Item {
     }
 
     @Override
-    public void decrementSize() {
+    public int decrementSize() {
         this.size--;
+        return this.size;
     }
 }

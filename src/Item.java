@@ -73,15 +73,15 @@ public class Item {
         this.price = price;
     }
 
-    public void detachFromList(long partName) {
+    public int detachFromList(long partName) {
         int aisle = this.whichAisle(partName);
         if (aisle < 0) {
             System.out.println("Logical error");
-            return;
+            return 0;
         }
 
         if (this.prev[aisle] == null) {
-            return; // Because of head, it is impossible
+            return 0; // Because of head, it is impossible
         }
 
         // for prev
@@ -92,16 +92,17 @@ public class Item {
         }
 
         // for size
-        this.head[aisle].decrementSize();
+        return this.head[aisle].decrementSize();
     }
+//
+//    @Deprecated
+//    public void detachFromAllLists() {
+//        for (long partName : name) {
+//            detachFromList(partName);
+//        }
+//    }
 
-    public void detachFromAllLists() {
-        for (long partName : name) {
-            detachFromList(partName);
-        }
-    }
-
-    public void decrementSize() {
-
+    public int decrementSize() {
+        return 0;
     }
 }

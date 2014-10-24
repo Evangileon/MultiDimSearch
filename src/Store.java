@@ -33,10 +33,31 @@ public class Store {
             return 1;
         }
 
+        if (name != null) {
+            delete(id);
+            insert(id, price, name);
+            return 0;
+        }
+
+        double oldPrice = item.price;
         item.setPrice(price);
-        item.detachFromAllLists();
+        //item.detachFromAllLists();
+
+        clearAndUpdateNamePriceMap(item, oldPrice, false);
+        /*int[] sizes = new int[item.name.length];
+        for (int i = 0; i < item.name.length; i++) {
+            long pName = item.name[i];
+            int size = item.detachFromList(pName);
+            sizes[i] = size;
+        }
         // update name price map
         updateNamePriceMap(item);
+
+        for (int i = 0; i < sizes.length; i++) {
+            long pName = item.name[i];
+            namePriceMap.get(pName).delete(item.price);
+        }*/
+
 
         return 0;
     }
@@ -54,9 +75,12 @@ public class Store {
         if (item == null) {
             return 0;
         }
-        item.detachFromAllLists();
+        //item.detachFromAllLists();
+        double oldPrice = item.price;
 
-        //for (int)
+        clearAndUpdateNamePriceMap(item, oldPrice, true);
+
+        itemTree.delete(id);
 
         long sum = 0;
         for (long one : item.name) {
@@ -112,14 +136,38 @@ public class Store {
 
         for (Node<Long, Item> node : itemsOnRange) {
             Item item = node.val;
+            Double oldPrice = item.price;
             double incre = Double.valueOf(priceFormat.format(ratio * item.price));
             item.price += incre;
-            item.detachFromAllLists();
-            updateNamePriceMap(item);
+            //item.detachFromAllLists();
+            clearAndUpdateNamePriceMap(item, oldPrice, false);
+
             increase += incre;
         }
 
         return increase;
+    }
+
+    private void clearAndUpdateNamePriceMap(Item item, double oldPrice, boolean isDelete) {
+        int[] sizes = new int[item.name.length];
+        for (int i = 0; i < item.name.length; i++) {
+            long pName = item.name[i];
+            int size = item.detachFromList(pName);
+            sizes[i] = size;
+        }
+
+
+        for (int i = 0; i < sizes.length; i++) {
+            if (sizes[i] == 0) {
+                long pName = item.name[i];
+                namePriceMap.get(pName).delete(oldPrice);
+            }
+        }
+
+        // update name price map
+        if (!isDelete) {
+            updateNamePriceMap(item);
+        }
     }
 
     private void updateNamePriceMap(Item item) {
