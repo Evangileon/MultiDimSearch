@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.RoundingMode;
@@ -96,7 +97,11 @@ public class Store {
         }
 
         // log n, O(1) try later
-        return priceMap.min();
+        Double result = priceMap.min();
+        if (result == null) {
+            return 0;
+        }
+        return result;
     }
 
     public double findMaxPrice(long n) {
@@ -105,7 +110,11 @@ public class Store {
             return 0;
         }
 
-        return priceMap.max();
+        Double result = priceMap.max();
+        if (result == null) {
+            return 0;
+        }
+        return result;
     }
 
     public int findPriceRange(long n, double low, double high) {
@@ -131,7 +140,7 @@ public class Store {
         }
 
         LinkedList<Node<Long, Item>> itemsOnRange = itemTree.getNodesOnRange(l, h);
-        double ratio = ((double)r) / 100;
+        double ratio = ((double) r) / 100;
         double increase = 0;
 
         for (Node<Long, Item> node : itemsOnRange) {
@@ -145,7 +154,7 @@ public class Store {
             increase += incre;
         }
 
-        return increase;
+        return Double.valueOf(priceFormat.format(increase));
     }
 
     private void clearAndUpdateNamePriceMap(Item item, double oldPrice, boolean isDelete) {
@@ -173,10 +182,15 @@ public class Store {
     private void updateNamePriceMap(Item item) {
         for (long partName : item.name) {
             RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(partName);
+            if (partName == 1905) {
+                //System.out.println();
+            }
+
             if (priceMap == null) {
                 priceMap = new RedBlackBST<Double, ItemListHead>();
                 namePriceMap.put(partName, priceMap);
             }
+
 
             // already existed
             ItemListHead head = priceMap.get(item.price);
@@ -190,13 +204,23 @@ public class Store {
     }
 
     public static void main(String[] args) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        double output = 0;
+        BufferedReader reader;
 
-        Store store = new Store();
-
-        String line;
         try {
+            if (args.length > 0) {
+                reader = new BufferedReader(new FileReader(args[0]));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(System.in));
+            }
+
+            double output = 0;
+
+            Store store = new Store();
+
+            String line;
+            DecimalFormat outputFormat = new DecimalFormat("##.##");
+            outputFormat.setRoundingMode(RoundingMode.HALF_UP);
+
             while ((line = reader.readLine()) != null && !line.equals("")) {
                 if (line.startsWith("#")) {
                     continue;
@@ -229,6 +253,7 @@ public class Store {
                     }
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Find")) {
                     double result = 0;
@@ -236,6 +261,7 @@ public class Store {
                     result = store.find(id);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Delete")) {
                     long result = 0;
@@ -243,6 +269,7 @@ public class Store {
                     result = store.delete(id);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
                     double result;
@@ -250,6 +277,7 @@ public class Store {
                     result = store.findMinPrice(partName);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMaxPrice")) {
                     double result;
@@ -257,6 +285,7 @@ public class Store {
                     result = store.findMaxPrice(partName);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindPriceRange")) {
                     int result = 0;
@@ -267,6 +296,7 @@ public class Store {
                     result = store.findPriceRange(partName, low, high);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("PriceHike")) {
                     double result = 0;
@@ -277,9 +307,12 @@ public class Store {
                     result = store.priceHike(l, h, r);
 
                     output += result;
+                    //output = Double.valueOf(outputFormat.format(output));
                 }
             }
 
+
+            output = Double.valueOf(outputFormat.format(output));
             System.out.println(output);
 
             reader.close();
