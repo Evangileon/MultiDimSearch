@@ -1,12 +1,10 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.Format;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.TreeMap;
 
 /**
  * Created by Jun Yu on 10/23/14.
@@ -20,6 +18,7 @@ public class Store {
         itemMap = new HashMap<Long, Item>();
         namePriceMap = new HashMap<Long, RedBlackBST<Double, ItemListHead>>();
         itemTree = new RedBlackBST<Long, Item>();
+        priceFormat.setRoundingMode(RoundingMode.DOWN);
     }
 
     public int insert(long id, double price, long[] name) {
@@ -56,6 +55,8 @@ public class Store {
             return 0;
         }
         item.detachFromAllLists();
+
+        //for (int)
 
         long sum = 0;
         for (long one : item.name) {
@@ -111,11 +112,11 @@ public class Store {
 
         for (Node<Long, Item> node : itemsOnRange) {
             Item item = node.val;
-            double oldPrice = item.price;
-            item.price = Double.valueOf(priceFormat.format((1 + r) * item.price));
+            double incre = Double.valueOf(priceFormat.format(ratio * item.price));
+            item.price += incre;
             item.detachFromAllLists();
             updateNamePriceMap(item);
-            increase += (item.price - oldPrice);
+            increase += incre;
         }
 
         return increase;
@@ -153,6 +154,7 @@ public class Store {
                     continue;
                 }
 
+                line = line.trim();
                 String[] params = line.split(" ");
                 if (params.length < 1) {
                     System.out.println("Error in data");
@@ -165,7 +167,7 @@ public class Store {
                     int result = 0;
                     long id = Long.valueOf(params[1]);
                     double price = Double.valueOf(params[2]);
-                    int nameLength = cmd.length() - 4;
+                    int nameLength = params.length - 4;
 
                     if (nameLength == 0) {
                         // update price
@@ -230,7 +232,6 @@ public class Store {
                 }
             }
 
-            System.out.println("Output:");
             System.out.println(output);
 
             reader.close();
