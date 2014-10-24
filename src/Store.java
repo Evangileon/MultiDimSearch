@@ -203,7 +203,7 @@ public class Store {
                 }
 
                 line = line.trim();
-                String[] params = line.split(" ");
+                String[] params = line.split("\\s+");
                 if (params.length < 1) {
                     System.out.println("Error in data");
                     System.exit(0);
