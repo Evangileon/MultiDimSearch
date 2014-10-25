@@ -276,10 +276,10 @@ public class Store {
                     long result;
                     long id = Long.valueOf(params[1]);
                     result = store.find(id);
-
-                    output += Double.valueOf(Item.priceLongToStr(result));
+                    double temp = Double.valueOf(Item.priceLongToStr(result));
+                    output += temp;
                     System.out.println(line);
-                    System.out.println("# " + result);
+                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Delete")) {
@@ -287,9 +287,11 @@ public class Store {
                     long id = Long.valueOf(params[1]);
                     result = store.delete(id);
 
-                    output += Double.valueOf(Item.priceLongToStr(result));
+                    double temp = Double.valueOf(Item.priceLongToStr(result));
+                    output += temp;
+                    output += temp;
                     System.out.println(line);
-                    System.out.println("# " + result);
+                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
@@ -297,9 +299,10 @@ public class Store {
                     long partName = Long.valueOf(params[1]);
                     result = store.findMinPrice(partName);
 
-                    output += result;
+                    double temp = Double.valueOf(Item.priceLongToStr(result));
+                    output += temp;
                     System.out.println(line);
-                    System.out.println("# " + result);
+                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMaxPrice")) {
@@ -307,9 +310,10 @@ public class Store {
                     long partName = Long.valueOf(params[1]);
                     result = store.findMaxPrice(partName);
 
-                    output += Double.valueOf(Item.priceLongToStr(result));
+                    double temp = Double.valueOf(Item.priceLongToStr(result));
+                    output += temp;
                     System.out.println(line);
-                    System.out.println("# " + result);
+                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindPriceRange")) {
@@ -333,9 +337,10 @@ public class Store {
 
                     result = store.priceHike(l, h, r);
 
-                    output += Double.valueOf(Item.priceLongToStr(result));
+                    double temp = Double.valueOf(Item.priceLongToStr(result));
+                    output += temp;
                     System.out.println(line);
-                    System.out.println("# " + result);
+                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
                 }
             }
