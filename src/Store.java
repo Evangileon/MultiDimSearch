@@ -287,11 +287,9 @@ public class Store {
                     long id = Long.valueOf(params[1]);
                     result = store.delete(id);
 
-                    double temp = Double.valueOf(Item.priceLongToStr(result));
-                    output += temp;
-                    output += temp;
+                    output += result;
                     System.out.println(line);
-                    System.out.println("# " + temp);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
