@@ -20,6 +20,7 @@ public class Store {
         namePriceMap = new HashMap<Long, RedBlackBST<Double, ItemListHead>>();
         itemTree = new RedBlackBST<Long, Item>();
         priceFormat.setRoundingMode(RoundingMode.DOWN);
+        pricePrecision.setRoundingMode(RoundingMode.HALF_UP);
     }
 
     public int insert(long id, double price, long[] name) {
@@ -133,6 +134,7 @@ public class Store {
     }
 
     DecimalFormat priceFormat = new DecimalFormat("##.##");
+    DecimalFormat pricePrecision = new DecimalFormat("##.##");
 
     public double priceHike(long l, long h, int r) {
         if (r <= 0 || r > 100) {
@@ -169,7 +171,14 @@ public class Store {
         for (int i = 0; i < sizes.length; i++) {
             if (sizes[i] == 0) {
                 long pName = item.name[i];
-                namePriceMap.get(pName).delete(oldPrice);
+                RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(pName);
+                // remove from second RBTree
+                priceMap.delete(oldPrice);
+
+                // remove spots from top hash map
+                if (priceMap.isEmpty()) {
+                    namePriceMap.remove(priceMap);
+                }
             }
         }
 
@@ -253,6 +262,8 @@ public class Store {
                     }
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Find")) {
@@ -260,7 +271,10 @@ public class Store {
                     long id = Long.valueOf(params[1]);
                     result = store.find(id);
 
+                    result = Double.valueOf(outputFormat.format(result));
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Delete")) {
@@ -269,6 +283,8 @@ public class Store {
                     result = store.delete(id);
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
@@ -277,6 +293,8 @@ public class Store {
                     result = store.findMinPrice(partName);
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMaxPrice")) {
@@ -285,6 +303,8 @@ public class Store {
                     result = store.findMaxPrice(partName);
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindPriceRange")) {
@@ -296,6 +316,8 @@ public class Store {
                     result = store.findPriceRange(partName, low, high);
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("PriceHike")) {
@@ -307,6 +329,8 @@ public class Store {
                     result = store.priceHike(l, h, r);
 
                     output += result;
+                    System.out.println(line);
+                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
                 }
             }
