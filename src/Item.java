@@ -75,6 +75,11 @@ public class Item {
 
     public static String priceLongToStr(long price) {
         String str = Long.toString(price);
+        if (price < 10) {
+            str = "0.0" + str;
+            return str;
+        }
+
         if (price < 100) {
             // only pennies
             str = "0." + str;
@@ -142,7 +147,7 @@ public class Item {
         Item item = new Item();
         item.price = 67;
         System.out.println(item.getPriceStr());
-        System.out.println(Item.priceLongToStr(34));
-        System.out.println(Item.priceStrToLong("0.12"));
+        System.out.println(Item.priceLongToStr(4));
+        System.out.println(Item.priceStrToLong("0.02"));
     }
 }
