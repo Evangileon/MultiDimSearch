@@ -26,7 +26,7 @@ public class Item {
         head = new Item[this.name.length];
     }
 
-    public double getPrice() {
+    public long getPrice() {
         return price;
     }
 

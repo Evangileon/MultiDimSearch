@@ -71,7 +71,7 @@ public class Store {
         return insert(id, price, name);
     }
 
-    public double find(long id) {
+    public long find(long id) {
         Item item = itemMap.get(id);
         if (item == null) {
             return 0;
@@ -98,7 +98,7 @@ public class Store {
         return sum;
     }
 
-    public double findMinPrice(long n) {
+    public long findMinPrice(long n) {
         RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
             return 0;
@@ -112,7 +112,7 @@ public class Store {
         return result;
     }
 
-    public double findMaxPrice(long n) {
+    public long findMaxPrice(long n) {
         RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
             return 0;
@@ -143,19 +143,20 @@ public class Store {
     DecimalFormat priceFormat = new DecimalFormat("##.##");
     DecimalFormat pricePrecision = new DecimalFormat("##.##");
 
-    public double priceHike(long l, long h, int r) {
+    public long priceHike(long l, long h, int r) {
         if (r <= 0 || r > 100) {
             return 0;
         }
 
         LinkedList<Node<Long, Item>> itemsOnRange = itemTree.getNodesOnRange(l, h);
-        double ratio = ((double) r) / 100;
-        double increase = 0;
+        long increase = 0;
 
         for (Node<Long, Item> node : itemsOnRange) {
             Item item = node.val;
             long oldPrice = item.price;
-            long incre = Double.valueOf(priceFormat.format(ratio * item.price));
+
+            //long incre = Double.valueOf(priceFormat.format(ratio * item.price));
+            long incre = (item.price * r) / 100;
             item.price += incre;
             //item.detachFromAllLists();
             clearAndUpdateNamePriceMap(item, oldPrice, false);
@@ -163,7 +164,7 @@ public class Store {
             increase += incre;
         }
 
-        return Double.valueOf(priceFormat.format(increase));
+        return increase;
     }
 
     private void clearAndUpdateNamePriceMap(Item item, long oldPrice, boolean isDelete) {
@@ -198,9 +199,6 @@ public class Store {
     private void updateNamePriceMap(Item item) {
         for (long partName : item.name) {
             RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(partName);
-            if (partName == 1905) {
-                //System.out.println();
-            }
 
             if (priceMap == null) {
                 priceMap = new RedBlackBST<Long, ItemListHead>();
@@ -252,9 +250,9 @@ public class Store {
                 String cmd = params[0];
 
                 if (cmd.equals("Insert")) {
-                    int result = 0;
+                    int result;
                     long id = Long.valueOf(params[1]);
-                    double price = Double.valueOf(params[2]);
+                    //double price = Double.valueOf(params[2]);
                     String priceStr = params[2];
                     int nameLength = params.length - 4;
 
@@ -275,28 +273,27 @@ public class Store {
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Find")) {
-                    double result = 0;
+                    long result;
                     long id = Long.valueOf(params[1]);
                     result = store.find(id);
 
-                    result = Double.valueOf(outputFormat.format(result));
-                    output += result;
+                    output += Double.valueOf(Item.priceLongToStr(result));
                     System.out.println(line);
                     System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Delete")) {
-                    long result = 0;
+                    long result;
                     long id = Long.valueOf(params[1]);
                     result = store.delete(id);
 
-                    output += result;
+                    output += Double.valueOf(Item.priceLongToStr(result));
                     System.out.println(line);
                     System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
-                    double result;
+                    long result;
                     long partName = Long.valueOf(params[1]);
                     result = store.findMinPrice(partName);
 
@@ -306,17 +303,17 @@ public class Store {
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMaxPrice")) {
-                    double result;
+                    long result;
                     long partName = Long.valueOf(params[1]);
                     result = store.findMaxPrice(partName);
 
-                    output += result;
+                    output += Double.valueOf(Item.priceLongToStr(result));
                     System.out.println(line);
                     System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindPriceRange")) {
-                    int result = 0;
+                    int result;
                     long partName = Long.valueOf(params[1]);
                     long low = Item.priceStrToLong(params[2]);
                     long high = Item.priceStrToLong(params[3]);
@@ -329,14 +326,14 @@ public class Store {
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("PriceHike")) {
-                    double result = 0;
+                    long result;
                     long l = Long.valueOf(params[1]);
                     long h = Long.valueOf(params[2]);
                     int r = Integer.valueOf(params[3]);
 
                     result = store.priceHike(l, h, r);
 
-                    output += result;
+                    output += Double.valueOf(Item.priceLongToStr(result));
                     System.out.println(line);
                     System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
