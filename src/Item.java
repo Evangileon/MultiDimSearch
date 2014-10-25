@@ -3,7 +3,7 @@
  */
 public class Item {
     long id;
-    double price; // ##.##
+    long price; // ##.##
     long[] name;
 
     Item[] next; // next item with same price respective to name
@@ -16,7 +16,7 @@ public class Item {
         head = new Item[1];
     }
 
-    public Item(long id, double price, long[] name) {
+    public Item(long id, long price, long[] name) {
         this.id = id;
         this.price = price;
         this.name = name;
@@ -69,7 +69,39 @@ public class Item {
         setPrev(whichAisle(partName), item);
     }
 
-    public void setPrice(double price) {
+    public String getPriceStr() {
+        return priceLongToStr(this.price);
+    }
+
+    public static String priceLongToStr(long price) {
+        String str = Long.toString(price);
+        if (price < 100) {
+            // only pennies
+            str = "0." + str;
+            return str;
+        }
+
+        StringBuffer buffer = new StringBuffer(str);
+        buffer.insert(str.length() - 2, ".");
+        return buffer.toString();
+    }
+
+    public static long priceStrToLong(String priceStr) {
+        String[] priceParam = priceStr.split("\\.");
+        if (priceParam.length < 2) {
+            return 0;
+        }
+
+        if (priceParam[1].length() < 2) {
+            priceParam[1] = priceParam[1] + "0";
+        }
+        long result = Long.valueOf(priceParam[0]) * 100;
+        result += Long.valueOf(priceParam[1]);
+
+        return result;
+    }
+
+    public void setPrice(long price) {
         this.price = price;
     }
 
@@ -104,5 +136,13 @@ public class Item {
 
     public int decrementSize() {
         return 0;
+    }
+
+    public static void main(String[] args) {
+        Item item = new Item();
+        item.price = 67;
+        System.out.println(item.getPriceStr());
+        System.out.println(Item.priceLongToStr(34));
+        System.out.println(Item.priceStrToLong("0.12"));
     }
 }

@@ -12,18 +12,18 @@ import java.util.LinkedList;
  */
 public class Store {
     HashMap<Long, Item> itemMap;
-    HashMap<Long, RedBlackBST<Double, ItemListHead>> namePriceMap;
+    HashMap<Long, RedBlackBST<Long, ItemListHead>> namePriceMap;
     RedBlackBST<Long, Item> itemTree;
 
     public Store() {
         itemMap = new HashMap<Long, Item>();
-        namePriceMap = new HashMap<Long, RedBlackBST<Double, ItemListHead>>();
+        namePriceMap = new HashMap<Long, RedBlackBST<Long, ItemListHead>>();
         itemTree = new RedBlackBST<Long, Item>();
         priceFormat.setRoundingMode(RoundingMode.DOWN);
         pricePrecision.setRoundingMode(RoundingMode.HALF_UP);
     }
 
-    public int insert(long id, double price, long[] name) {
+    public int insert(long id, long price, long[] name) {
         Item item = itemMap.get(id);
 
         if (item == null) {
@@ -41,7 +41,7 @@ public class Store {
             return 0;
         }
 
-        double oldPrice = item.price;
+        long oldPrice = item.price;
         item.setPrice(price);
         //item.detachFromAllLists();
 
@@ -64,6 +64,13 @@ public class Store {
         return 0;
     }
 
+    public int insert(long id, String priceStr, long[] name) {
+
+        long price = Item.priceStrToLong(priceStr);
+
+        return insert(id, price, name);
+    }
+
     public double find(long id) {
         Item item = itemMap.get(id);
         if (item == null) {
@@ -78,7 +85,7 @@ public class Store {
             return 0;
         }
         //item.detachFromAllLists();
-        double oldPrice = item.price;
+        long oldPrice = item.price;
 
         clearAndUpdateNamePriceMap(item, oldPrice, true);
 
@@ -92,13 +99,13 @@ public class Store {
     }
 
     public double findMinPrice(long n) {
-        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+        RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
             return 0;
         }
 
         // log n, O(1) try later
-        Double result = priceMap.min();
+        Long result = priceMap.min();
         if (result == null) {
             return 0;
         }
@@ -106,27 +113,27 @@ public class Store {
     }
 
     public double findMaxPrice(long n) {
-        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+        RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
             return 0;
         }
 
-        Double result = priceMap.max();
+        Long result = priceMap.max();
         if (result == null) {
             return 0;
         }
         return result;
     }
 
-    public int findPriceRange(long n, double low, double high) {
-        RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(n);
+    public int findPriceRange(long n, long low, long high) {
+        RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
             return 0;
         }
 
-        LinkedList<Node<Double, ItemListHead>> nodeList = priceMap.getNodesOnRange(low, high);
+        LinkedList<Node<Long, ItemListHead>> nodeList = priceMap.getNodesOnRange(low, high);
         int sum = 0;
-        for (Node<Double, ItemListHead> node : nodeList) {
+        for (Node<Long, ItemListHead> node : nodeList) {
             sum += node.val.size;
         }
 
@@ -147,8 +154,8 @@ public class Store {
 
         for (Node<Long, Item> node : itemsOnRange) {
             Item item = node.val;
-            Double oldPrice = item.price;
-            double incre = Double.valueOf(priceFormat.format(ratio * item.price));
+            long oldPrice = item.price;
+            long incre = Double.valueOf(priceFormat.format(ratio * item.price));
             item.price += incre;
             //item.detachFromAllLists();
             clearAndUpdateNamePriceMap(item, oldPrice, false);
@@ -159,7 +166,7 @@ public class Store {
         return Double.valueOf(priceFormat.format(increase));
     }
 
-    private void clearAndUpdateNamePriceMap(Item item, double oldPrice, boolean isDelete) {
+    private void clearAndUpdateNamePriceMap(Item item, long oldPrice, boolean isDelete) {
         int[] sizes = new int[item.name.length];
         for (int i = 0; i < item.name.length; i++) {
             long pName = item.name[i];
@@ -171,7 +178,7 @@ public class Store {
         for (int i = 0; i < sizes.length; i++) {
             if (sizes[i] == 0) {
                 long pName = item.name[i];
-                RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(pName);
+                RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(pName);
                 // remove from second RBTree
                 priceMap.delete(oldPrice);
 
@@ -190,13 +197,13 @@ public class Store {
 
     private void updateNamePriceMap(Item item) {
         for (long partName : item.name) {
-            RedBlackBST<Double, ItemListHead> priceMap = namePriceMap.get(partName);
+            RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(partName);
             if (partName == 1905) {
                 //System.out.println();
             }
 
             if (priceMap == null) {
-                priceMap = new RedBlackBST<Double, ItemListHead>();
+                priceMap = new RedBlackBST<Long, ItemListHead>();
                 namePriceMap.put(partName, priceMap);
             }
 
@@ -248,17 +255,18 @@ public class Store {
                     int result = 0;
                     long id = Long.valueOf(params[1]);
                     double price = Double.valueOf(params[2]);
+                    String priceStr = params[2];
                     int nameLength = params.length - 4;
 
                     if (nameLength == 0) {
                         // update price
-                        result = store.insert(id, price, null);
+                        result = store.insert(id, priceStr, null);
                     } else {
                         long[] name = new long[nameLength];
                         for (int i = 0; i < nameLength; i++) {
                             name[i] = Long.valueOf(params[i + 3]);
                         }
-                        result = store.insert(id, price, name);
+                        result = store.insert(id, priceStr, name);
                     }
 
                     output += result;
@@ -310,8 +318,8 @@ public class Store {
                 } else if (cmd.equals("FindPriceRange")) {
                     int result = 0;
                     long partName = Long.valueOf(params[1]);
-                    double low = Double.valueOf(params[2]);
-                    double high = Double.valueOf(params[3]);
+                    long low = Item.priceStrToLong(params[2]);
+                    long high = Item.priceStrToLong(params[3]);
 
                     result = store.findPriceRange(partName, low, high);
 
