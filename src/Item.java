@@ -8,7 +8,7 @@ public class Item {
 
     Item[] next; // next item with same price respective to name
     Item[] prev; // prev
-    Item[] head;
+    Item[] head; // head of item list, efficient to update list size in head
 
     public Item() {
         next = new Item[1];
@@ -73,6 +73,11 @@ public class Item {
         return priceLongToStr(this.price);
     }
 
+    /**
+     * 123456L to "1234.56"
+     * @param price long
+     * @return string
+     */
     public static String priceLongToStr(long price) {
         String str = Long.toString(price);
         if (price < 10) {
@@ -91,6 +96,11 @@ public class Item {
         return buffer.toString();
     }
 
+    /**
+     * "1234.56" to 123456L
+     * @param priceStr string
+     * @return long
+     */
     public static long priceStrToLong(String priceStr) {
         String[] priceParam = priceStr.split("\\.");
         if (priceParam.length < 2) {
@@ -110,6 +120,11 @@ public class Item {
         this.price = price;
     }
 
+    /**
+     * Detach from item doublt linked list
+     * @param partName partial name
+     * @return size of updated list
+     */
     public int detachFromList(long partName) {
         int aisle = this.whichAisle(partName);
         if (aisle < 0) {

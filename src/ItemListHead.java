@@ -12,6 +12,12 @@ public class ItemListHead extends Item {
         size = 0;
     }
 
+    /**
+     * Add the item just after the head, because we can't be sure that which proper pointer of item is.
+     * we need to search on partial name
+     * @param item to be added
+     * @param partName same price, same partial name
+     */
     public void addFirst(Item item, long partName) {
 
         int aisle = item.whichAisle(partName);
@@ -65,6 +71,10 @@ public class ItemListHead extends Item {
         this.prev = item;
     }
 
+    /**
+     * Decrement of the size of list
+     * @return new size
+     */
     @Override
     public int decrementSize() {
         this.size--;

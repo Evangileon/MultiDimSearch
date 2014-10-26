@@ -11,8 +11,13 @@ import java.util.LinkedList;
  * Created by Jun Yu on 10/23/14.
  */
 public class Store {
+    // for search by id efficiently
     HashMap<Long, Item> itemMap;
+    // two level structure, first is to store all items with same partial name,
+    // key is partial name, value is a RBTree whose key is price, and value is
+    // internal doubly linked list of items.
     HashMap<Long, RedBlackBST<Long, ItemListHead>> namePriceMap;
+    // for search id range
     RedBlackBST<Long, Item> itemTree;
 
     public Store() {
@@ -23,6 +28,13 @@ public class Store {
         pricePrecision.setRoundingMode(RoundingMode.HALF_UP);
     }
 
+    /**
+     * Insert the item into store
+     * @param id long, unique, non negative
+     * @param price equals the price times 100
+     * @param name long array, length determined by input
+     * @return 1 if new, otherwise 0
+     */
     public int insert(long id, long price, long[] name) {
         Item item = itemMap.get(id);
 
@@ -36,41 +48,38 @@ public class Store {
         }
 
         if (name != null) {
+            // if already existed and need to replace name
             delete(id);
             insert(id, price, name);
             return 0;
         }
 
+        // no need to replace name, just update price
         long oldPrice = item.price;
         item.setPrice(price);
-        //item.detachFromAllLists();
-
-        clearAndUpdateNamePriceMap(item, oldPrice, false);
-        /*int[] sizes = new int[item.name.length];
-        for (int i = 0; i < item.name.length; i++) {
-            long pName = item.name[i];
-            int size = item.detachFromList(pName);
-            sizes[i] = size;
-        }
         // update name price map
-        updateNamePriceMap(item);
-
-        for (int i = 0; i < sizes.length; i++) {
-            long pName = item.name[i];
-            namePriceMap.get(pName).delete(item.price);
-        }*/
-
+        clearAndUpdateNamePriceMap(item, oldPrice, false);
 
         return 0;
     }
 
+    /**
+     * Insert item with string represented price. Say, "123.45" to 12345L
+     * @param id unique, non negative
+     * @param priceStr string represented price, must has a dot, and two decimals after dot
+     * @param name name array
+     * @return 1 if new, otherwise 0
+     */
     public int insert(long id, String priceStr, long[] name) {
-
         long price = Item.priceStrToLong(priceStr);
-
         return insert(id, price, name);
     }
 
+    /**
+     * Find an item with specified id
+     * @param id unique, non negative
+     * @return the long represented price if found, 0 otherwise
+     */
     public long find(long id) {
         Item item = itemMap.get(id);
         if (item == null) {
@@ -79,14 +88,20 @@ public class Store {
         return item.price;
     }
 
+    /**
+     * Delete the item with specified id
+     * @param id unique, non negative
+     * @return the sum of name array if found, 0 otherwise
+     */
     public long delete(long id) {
         Item item = itemMap.remove(id);
         if (item == null) {
             return 0;
         }
-        //item.detachFromAllLists();
-        long oldPrice = item.price;
 
+        long oldPrice = item.price;
+        // because I have a cross two references, from name to price to node
+        // and node to node with same partial name, same price
         clearAndUpdateNamePriceMap(item, oldPrice, true);
 
         itemTree.delete(id);
@@ -98,6 +113,11 @@ public class Store {
         return sum;
     }
 
+    /**
+     * Find the item with maximum price that has the same partial name with given
+     * @param n given partial name
+     * @return the price of item if found, 0 not exists
+     */
     public long findMinPrice(long n) {
         RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
@@ -112,6 +132,11 @@ public class Store {
         return result;
     }
 
+    /**
+     * Find the item with minimum price that has the same partial name with given
+     * @param n given partial name
+     * @return the price of item if found, 0 not exists
+     */
     public long findMaxPrice(long n) {
         RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
@@ -125,6 +150,13 @@ public class Store {
         return result;
     }
 
+    /**
+     * Find all items with given partial name whose price on range [low, high]
+     * @param n with given partial name
+     * @param low lower bound, inclusive
+     * @param high upper bound, inclusive
+     * @return the number of items satisfy all conditions
+     */
     public int findPriceRange(long n, long low, long high) {
         RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(n);
         if (priceMap == null) {
@@ -143,6 +175,13 @@ public class Store {
     DecimalFormat priceFormat = new DecimalFormat("##.##");
     DecimalFormat pricePrecision = new DecimalFormat("##.##");
 
+    /**
+     * Increase the price of every product, whose id is in the range [l,h], by r%
+     * @param l lower bound, inclusive
+     * @param h upper bound, inclusive
+     * @param r increase rate times 100
+     * @return the sum of the net increases of the prices
+     */
     public long priceHike(long l, long h, int r) {
         if (r <= 0 || r > 100) {
             return 0;
@@ -155,7 +194,6 @@ public class Store {
             Item item = node.val;
             long oldPrice = item.price;
 
-            //long incre = Double.valueOf(priceFormat.format(ratio * item.price));
             long incre = (item.price * r) / 100;
             item.price += incre;
             //item.detachFromAllLists();
@@ -167,15 +205,31 @@ public class Store {
         return increase;
     }
 
+    /**
+     * Very important helper function.
+     * 1. Because inside the item, there are next and prev arrays of item pointer, that pointer to other items
+     * with same partial name and price. The length of array equals to the length of name.
+     * If update operation(insert, delete, priceHike) occurs, the item need to attach to or detach from other
+     * 2. Item also stored in name price map. In the second level of namePriceMap, if one list store in RBTree
+     * is empty, we need to remove the list. If the RBTree itself is empty, we need to remove it from
+     * first level Hash Map
+     * @param item item just be updated
+     * @param oldPrice record the old price to find the list to detach
+     * @param isDelete indicator, if false, need to update. Delete is easier than update
+     */
     private void clearAndUpdateNamePriceMap(Item item, long oldPrice, boolean isDelete) {
         int[] sizes = new int[item.name.length];
+        // fora each partial name
         for (int i = 0; i < item.name.length; i++) {
             long pName = item.name[i];
+            // detach from the internal list in item
             int size = item.detachFromList(pName);
+            // if the length of list is zero, that means we need to remove list head
+            // from second level structure of namePriceMap
             sizes[i] = size;
         }
 
-
+        // if record size of item list is zero, then remove them from second level
         for (int i = 0; i < sizes.length; i++) {
             if (sizes[i] == 0) {
                 long pName = item.name[i];
@@ -196,6 +250,12 @@ public class Store {
         }
     }
 
+
+    /**
+     * Helper function for clearAndUpdateNamePriceMap
+     * Used to find proper item list to attach
+     * @param item already detached from item doubly linked list
+     */
     private void updateNamePriceMap(Item item) {
         for (long partName : item.name) {
             RedBlackBST<Long, ItemListHead> priceMap = namePriceMap.get(partName);
@@ -213,6 +273,7 @@ public class Store {
                 priceMap.put(item.price, head);
             }
 
+            // add this item after head, constant time
             head.addFirst(item, partName);
         }
     }
@@ -345,7 +406,7 @@ public class Store {
 
 
             output = Double.valueOf(outputFormat.format(output));
-            System.out.println(output);
+            System.out.println(Double.toString(output));
 
             reader.close();
         } catch (IOException e) {
