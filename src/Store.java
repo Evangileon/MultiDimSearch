@@ -329,8 +329,8 @@ public class Store {
                     }
 
                     output += result;
-                    System.out.println(line);
-                    System.out.println("# " + result);
+//                    System.out.println(line);
+//                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Find")) {
@@ -339,8 +339,8 @@ public class Store {
                     result = store.find(id);
                     double temp = Double.valueOf(Item.priceLongToStr(result));
                     output += temp;
-                    System.out.println(line);
-                    System.out.println("# " + temp);
+//                    System.out.println(line);
+//                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("Delete")) {
@@ -349,8 +349,8 @@ public class Store {
                     result = store.delete(id);
 
                     output += result;
-                    System.out.println(line);
-                    System.out.println("# " + result);
+//                    System.out.println(line);
+//                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMinPrice")) {
@@ -360,8 +360,8 @@ public class Store {
 
                     double temp = Double.valueOf(Item.priceLongToStr(result));
                     output += temp;
-                    System.out.println(line);
-                    System.out.println("# " + temp);
+//                    System.out.println(line);
+//                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindMaxPrice")) {
@@ -371,8 +371,8 @@ public class Store {
 
                     double temp = Double.valueOf(Item.priceLongToStr(result));
                     output += temp;
-                    System.out.println(line);
-                    System.out.println("# " + temp);
+//                    System.out.println(line);
+//                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("FindPriceRange")) {
@@ -384,8 +384,8 @@ public class Store {
                     result = store.findPriceRange(partName, low, high);
 
                     output += result;
-                    System.out.println(line);
-                    System.out.println("# " + result);
+//                    System.out.println(line);
+//                    System.out.println("# " + result);
                     //output = Double.valueOf(outputFormat.format(output));
 
                 } else if (cmd.equals("PriceHike")) {
@@ -398,8 +398,8 @@ public class Store {
 
                     double temp = Double.valueOf(Item.priceLongToStr(result));
                     output += temp;
-                    System.out.println(line);
-                    System.out.println("# " + temp);
+//                    System.out.println(line);
+//                    System.out.println("# " + temp);
                     //output = Double.valueOf(outputFormat.format(output));
                 }
             }
